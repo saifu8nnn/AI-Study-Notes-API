@@ -1,11 +1,10 @@
 from fastapi import FastAPI,HTTPException,Depends
 from fastapi import status
 from .models import Note
-from random import randrange
 from .models import NoteModel
 from .database import engine,get_db
 from sqlalchemy.orm import Session
-
+from .ai_services import generate_summary
 NoteModel.metadata.create_all(bind=engine)
 
 app=FastAPI()
@@ -18,6 +17,10 @@ def hello():
 def add_note(note:Note,db:Session=Depends(get_db)):
     new_note=NoteModel(**note.dict())
     db.add(new_note)
+    db.commit()
+    db.refresh(new_note)
+    summary=generate_summary(new_note.content)
+    new_note.summary=summary
     db.commit()
     db.refresh(new_note)
     return new_note
