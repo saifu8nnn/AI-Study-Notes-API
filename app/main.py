@@ -15,7 +15,7 @@ def hello():
 #Add a note
 @app.post("/notes",status_code=status.HTTP_201_CREATED)
 def add_note(note:Note,db:Session=Depends(get_db)):
-    new_note=NoteModel(**note.dict())
+    new_note=NoteModel(**note.dict())# ** to convert dictionary into keyword arguments for the NoteModel class
     db.add(new_note)
     db.commit()
     db.refresh(new_note)
@@ -60,4 +60,3 @@ def update_post(id:int,update_note:Note,db:Session=Depends(get_db)):
     db.commit()
     updated_note=db.query(NoteModel).filter(NoteModel.id==id).first()
     return updated_note
-
