@@ -5,9 +5,14 @@ from .models import NoteModel
 from .database import engine,get_db
 from sqlalchemy.orm import Session
 from .ai_services import generate_summary
-NoteModel.metadata.create_all(bind=engine)
 
 app=FastAPI()
+
+@app.on_event("startup")
+def startup():
+    NoteModel.metadata.create_all(bind=engine)
+
+
 @app.get("/")
 def hello():
     return{"message":"hello guyz welcome to study notes api"}
