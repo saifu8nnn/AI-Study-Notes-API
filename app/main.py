@@ -5,6 +5,7 @@ from .models import NoteModel
 from .database import engine,get_db
 from sqlalchemy.orm import Session
 from .ai_services import generate_summary
+from pydantic import Field
 
 app=FastAPI()
 
@@ -22,10 +23,9 @@ def hello():
 def add_note(note:Note,db:Session=Depends(get_db)):
     new_note=NoteModel(**note.dict())# ** to convert dictionary into keyword arguments for the NoteModel class
     db.add(new_note)
-    db.commit()
-    db.refresh(new_note)
-    summary=generate_summary(new_note.content)
-    new_note.summary=summary
+    summary=generate_summary(note.content)
+    new_note = NoteModel(**note.dict(), summary=summary)
+    db.add(new_note)
     db.commit()
     db.refresh(new_note)
     return new_note
